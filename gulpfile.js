@@ -4,10 +4,12 @@ var concat = require('gulp-concat');
 var cssMin = require('gulp-minify-css');
 var gulp = require('gulp');
 var handlebars = require('Handlebars');
+var jsValidate = require('gulp-jsvalidate');
 var markdown = require('gulp-markdown');
 var path = require('path');
 var sass = require('gulp-sass');
 var tap = require('gulp-tap');
+var uglify = require('gulp-uglify');
 var webServer = require('gulp-webserver');
 
 var metadata = {
@@ -33,7 +35,7 @@ gulp.task('css', ['clean', 'sass'], function() {
         .pipe(gulp.dest('docs'));
 });
 
-gulp.task('default', ['clean', 'css', 'generate-pages']);
+gulp.task('default', ['clean', 'css', 'generate-pages', 'js']);
 
 gulp.task('generate-pages', function() {
     return gulp.src('content/templates/main-layout.hbs')
@@ -73,6 +75,14 @@ gulp.task('generate-pages', function() {
                 }))
                 .pipe(gulp.dest('docs'));
             }));
+});
+
+gulp.task('js', ['clean'], function() {
+    return gulp.src("content/scripts/**.js")
+        .pipe(jsValidate())
+        .pipe(uglify())
+        .pipe(concat('main.min.js'))
+        .pipe(gulp.dest('docs'));
 });
 
 gulp.task('sass', ['clean'], function() {
