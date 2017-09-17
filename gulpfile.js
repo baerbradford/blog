@@ -26,7 +26,7 @@ gulp.task('clean-docs', function () {
     .pipe(clean());
 });
 
-gulp.task('css', ['sass'], function() {
+gulp.task('css', ['clean', 'sass'], function() {
     gulp.src('build/styles/**.css')
         .pipe(concat('main.min.css'))
         .pipe(cssMin())
@@ -75,7 +75,7 @@ gulp.task('generate-pages', function() {
             }));
 });
 
-gulp.task('sass', function() {
+gulp.task('sass', ['clean'], function() {
     return gulp.src('content/styles/**.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest('build/styles'));

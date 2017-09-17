@@ -1,7 +1,7 @@
 {
-    "title": "Home"
+    "title": "Our First Post!"
 }
 ---
 # House and Money Blog
 
-Welcome!
+Welcome! This is our first post.
