@@ -15,6 +15,11 @@ var webServer = require('gulp-webserver');
 var metadata = {
     pages: {}
 };
+var metadataDefaults = {
+    author: "Rachel and Baer",
+    title: "Blog"
+}
+
 
 gulp.task('clean', ['clean-build', 'clean-docs']);
 
@@ -42,19 +47,21 @@ gulp.task('generate-pages', function() {
         .pipe(tap(function(file) {
             var template = handlebars.compile(file.contents.toString());
 
-            return gulp.src('content/**.md')
+            return gulp.src('content/posts/**.md')
                 .pipe(tap(function(file) {
                     var fileName = path.basename(file.path, ".md");
                     var fileContent = file.contents.toString();
                     var data = {
+                        author: metadataDefaults.author,
                         content: file.contents.toString(),
-                        title: 'Blog'
+                        title: metadataDefaults.title
                     };
                     var index = fileContent.indexOf('---');
                     if (index !== -1) {
                         var dataOverride = JSON.parse(fileContent.slice(0, index));
                         if (dataOverride.title) {
-                            data.title = dataOverride.title;
+                            data.author = dataOverride.author || metadataDefaults.author;
+                            data.title = dataOverride.title || metadataDefaults.title;
                         }
 
                         fileContent = fileContent.slice(index + 3, fileContent.length);
