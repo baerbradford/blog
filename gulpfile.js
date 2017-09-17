@@ -105,6 +105,22 @@ gulp.task('watch', [], function() {
 gulp.task('serve', [], function() {
     var webConfig = {
         livereload: true,
+        middleware: function (req, res, next) {
+            if (req.url.indexOf('.') >= 0) {
+                // Already has extension. Don't modify.
+                next();
+                return;
+            }
+        
+            // If `/` is requested. append index to it
+            if (req.url === '/') {
+              req.url = '/index';
+            }
+            // Append .html.
+            const url = req.url + '.html';
+            req.url = url;
+            next();
+        },
         open: 'http://localhost',
         port: 80
     };
