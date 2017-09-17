@@ -7,6 +7,7 @@ var handlebars = require('Handlebars');
 var jsValidate = require('gulp-jsvalidate');
 var markdown = require('gulp-markdown');
 var path = require('path');
+var rename = require('gulp-rename');
 var sass = require('gulp-sass');
 var tap = require('gulp-tap');
 var uglify = require('gulp-uglify');
@@ -40,7 +41,7 @@ gulp.task('css', ['clean', 'sass'], function() {
         .pipe(gulp.dest('docs'));
 });
 
-gulp.task('default', ['clean', 'css', 'generate-pages', 'js']);
+gulp.task('default', ['clean', 'css', 'generate-pages', 'homepage', 'js']);
 
 gulp.task('generate-pages', function() {
     return gulp.src('content/templates/main-layout.hbs')
@@ -49,26 +50,29 @@ gulp.task('generate-pages', function() {
 
             return gulp.src('content/posts/**.md')
                 .pipe(tap(function(file) {
-                    var fileName = path.basename(file.path, ".md");
+                    var fileName = path.basename(file.path, '.md');
                     var fileContent = file.contents.toString();
                     var data = {
                         author: metadataDefaults.author,
                         content: file.contents.toString(),
-                        title: metadataDefaults.title
+                        name: fileName,
+                        title: metadataDefaults.title,
+                        url: file.relative.replace('.md', '')
                     };
                     var index = fileContent.indexOf('---');
                     if (index !== -1) {
                         var dataOverride = JSON.parse(fileContent.slice(0, index));
                         if (dataOverride.title) {
-                            data.author = dataOverride.author || metadataDefaults.author;
-                            data.title = dataOverride.title || metadataDefaults.title;
+                            data.title = dataOverride.title;
+                        }
+                        if (dataOverride.author) {
+                            data.author = dataOverride.author;
                         }
 
                         fileContent = fileContent.slice(index + 3, fileContent.length);
                         data.content = fileContent;
                     }
-                    data.name = fileName;
-                    data.url = file.relative.replace('.md', '.html');
+
                     metadata.pages[data.name] = data;
                     file.contents = new Buffer(fileContent, 'utf-8');
                 }))
@@ -82,6 +86,21 @@ gulp.task('generate-pages', function() {
                 }))
                 .pipe(gulp.dest('docs'));
             }));
+});
+
+gulp.task('homepage', ['clean', 'generate-pages'], function() {
+    return gulp.src('content/templates/index.hbs')
+        .pipe(tap(function(file) {
+            var template = handlebars.compile(file.contents.toString());
+            var html = template({
+                pages: metadata.pages
+            });
+            file.contents = new Buffer(html, 'utf-8');
+        }))
+        .pipe(rename(function(path) {
+            path.extname = '.html'
+        }))
+        .pipe(gulp.dest('docs'));
 });
 
 gulp.task('js', ['clean'], function() {

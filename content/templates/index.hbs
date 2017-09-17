@@ -6,12 +6,11 @@
 <body>
   <h1>Blog</h1>
   <ul>
+    {{#each pages }}
       <li>
-        <a href="meet-rachel-and-baer">Meet Rachel and Baer</a>
+        <a href="{{ url }}">{{ title }}</a>
       </li>
-      <li>
-        <a href="our-plan">Our Plan</a>
-      </li>
+    {{/each}}
   </ul>
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
   <script type="text/javascript" src="main.min.js"></script>
