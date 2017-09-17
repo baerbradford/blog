@@ -68,6 +68,11 @@ gulp.task('generate-pages', function() {
                         if (dataOverride.author) {
                             data.author = dataOverride.author;
                         }
+                        if (dataOverride.date) {
+                            data.date = dataOverride.date;
+                        } else {
+                            throw fileName + ' missing date property.';
+                        }
 
                         fileContent = fileContent.slice(index + 3, fileContent.length);
                         data.content = fileContent;
@@ -92,8 +97,10 @@ gulp.task('homepage', ['clean', 'generate-pages'], function() {
     return gulp.src('content/templates/index.hbs')
         .pipe(tap(function(file) {
             var template = handlebars.compile(file.contents.toString());
+            var pages = Object.keys(metadata.pages).map(function(key) { return metadata.pages[key]; });
+            pages.sort(function(a,b) {console.log(a.date + ' ' + b.date); return (a.date < b.date) ? 1 : ((b.date < a.date) ? -1 : 0);} );
             var html = template({
-                pages: metadata.pages
+                pages: pages
             });
             file.contents = new Buffer(html, 'utf-8');
         }))
