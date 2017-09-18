@@ -41,9 +41,9 @@ gulp.task('css', ['clean', 'sass'], function() {
         .pipe(gulp.dest('docs'));
 });
 
-gulp.task('default', ['clean', 'css', 'generate-pages', 'homepage', 'js']);
+gulp.task('default', ['clean', 'css', 'generate-pages', 'homepage', 'img', 'js', 'vendor']);
 
-gulp.task('generate-pages', function() {
+gulp.task('generate-pages', ['clean'], function() {
     return gulp.src('content/templates/main-layout.hbs')
         .pipe(tap(function(file) {
             var template = handlebars.compile(file.contents.toString());
@@ -98,7 +98,7 @@ gulp.task('homepage', ['clean', 'generate-pages'], function() {
         .pipe(tap(function(file) {
             var template = handlebars.compile(file.contents.toString());
             var pages = Object.keys(metadata.pages).map(function(key) { return metadata.pages[key]; });
-            pages.sort(function(a,b) {console.log(a.date + ' ' + b.date); return (a.date < b.date) ? 1 : ((b.date < a.date) ? -1 : 0);} );
+            pages.sort(function(a,b) { return (a.date < b.date) ? 1 : ((b.date < a.date) ? -1 : 0);} );
             var html = template({
                 pages: pages
             });
@@ -108,6 +108,10 @@ gulp.task('homepage', ['clean', 'generate-pages'], function() {
             path.extname = '.html'
         }))
         .pipe(gulp.dest('docs'));
+});
+
+gulp.task('img', ['clean'], function() {
+    gulp.src(['content/img/**/*']).pipe(gulp.dest('docs/img'));
 });
 
 gulp.task('js', ['clean'], function() {
@@ -122,10 +126,6 @@ gulp.task('sass', ['clean'], function() {
     return gulp.src('content/styles/**.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest('build/styles'));
-});
-
-gulp.task('watch', [], function() {
-    return gulp.watch(['content/**'], ['default']);
 });
 
 gulp.task('serve', [], function() {
@@ -152,4 +152,12 @@ gulp.task('serve', [], function() {
     };
     return gulp.src('docs')
         .pipe(webServer(webConfig));
+});
+
+gulp.task('vendor', ['clean'], function() {
+    gulp.src(['content/vendor/**/*']).pipe(gulp.dest('docs/vendor'));
+});
+
+gulp.task('watch', [], function() {
+    return gulp.watch(['content/**'], ['default']);
 });
