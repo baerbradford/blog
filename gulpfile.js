@@ -23,6 +23,19 @@ var metadataDefaults = {
 }
 
 
+gulp.task('about', ['clean', 'register-partials'], function() {
+    return gulp.src('content/templates/about.hbs')
+        .pipe(tap(function(file) {
+            var template = handlebars.compile(file.contents.toString());
+            var html = template({});
+            file.contents = new Buffer(html, 'utf-8');
+        }))
+        .pipe(rename(function(path) {
+            path.extname = '.html'
+        }))
+        .pipe(gulp.dest('docs'));
+});
+
 gulp.task('clean', ['clean-build', 'clean-docs']);
 
 gulp.task('clean-build', [], function () {
@@ -42,10 +55,10 @@ gulp.task('css', ['clean', 'sass'], function() {
         .pipe(gulp.dest('docs'));
 });
 
-gulp.task('default', ['clean', 'css', 'generate-pages', 'homepage', 'img', 'js', 'vendor']);
+gulp.task('default', ['about', 'clean', 'css', 'generate-pages', 'homepage', 'img', 'js', 'vendor']);
 
-gulp.task('generate-pages', ['clean'], function() {
-    return gulp.src('content/templates/main-layout.hbs')
+gulp.task('generate-pages', ['clean', 'register-partials'], function() {
+    return gulp.src('content/templates/post.hbs')
         .pipe(tap(function(file) {
             var template = handlebars.compile(file.contents.toString());
 
@@ -97,7 +110,16 @@ gulp.task('generate-pages', ['clean'], function() {
             }));
 });
 
-gulp.task('homepage', ['clean', 'generate-pages'], function() {
+gulp.task('register-partials', [], function() {
+    return gulp.src('content/templates/partials/**.hbs')
+        .pipe(tap(function(file) {
+            var fileBaseName = path.basename(file.path, '.hbs');
+            var template = handlebars.compile(file.contents.toString());
+            handlebars.registerPartial(fileBaseName, template);
+        }));
+});
+
+gulp.task('homepage', ['clean', 'generate-pages', 'register-partials'], function() {
     return gulp.src('content/templates/index.hbs')
         .pipe(tap(function(file) {
             var template = handlebars.compile(file.contents.toString());
