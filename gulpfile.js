@@ -18,6 +18,7 @@ var metadata = {
 };
 var metadataDefaults = {
     author: "Rachel and Baer",
+    subtitle: "",
     title: "Blog"
 }
 
@@ -62,6 +63,9 @@ gulp.task('generate-pages', ['clean'], function() {
                     var index = fileContent.indexOf('---');
                     if (index !== -1) {
                         var dataOverride = JSON.parse(fileContent.slice(0, index));
+                        if (dataOverride.subtitle) {
+                            data.subtitle = dataOverride.subtitle;
+                        }
                         if (dataOverride.title) {
                             data.title = dataOverride.title;
                         }
